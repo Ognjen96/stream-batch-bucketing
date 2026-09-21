@@ -1,6 +1,7 @@
 {
 	"name": "stream-batch-processing assignment",
 	"image": "mcr.microsoft.com/devcontainers/python:3-3.12-trixie",
+	"postCreateCommand": "pip install -e '.[dev]'",
 	"customizations": {
 		"vscode": {
 			"extensions": [
