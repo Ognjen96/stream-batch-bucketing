@@ -1,0 +1,11 @@
+{
+	"name": "stream-batch-processing assignment",
+	"image": "mcr.microsoft.com/devcontainers/python:3-3.12-trixie",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-python.python"
+			]
+		}
+	}
+}
