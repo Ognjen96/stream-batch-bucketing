@@ -10,7 +10,16 @@ class Message:
     """
     id: int
     payload: str = ""
+
+@dataclass(frozen=True)
+class Minibatch:
+    """One closed window: the messages it collected and when it was open.
  
+    Frozen, so it can be handed to a worker without anyone changing it later.
+    """
+    messages: tuple[Message, ...]
+    opened_at: float
+    closed_at: float 
  
 class MessageSink(Protocol):
     """Anything that accepts messages. The source does not know who it is."""

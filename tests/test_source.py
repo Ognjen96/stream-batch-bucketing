@@ -11,13 +11,7 @@ def make_source(seed: int = 42, rate_per_minute: float = 10) -> PoissonMessageSo
  
  
 def take(source: PoissonMessageSource, n: int) -> list[tuple[float, Message]]:
-    """First n (delay, message) pairs from an endless source."""
-    pairs = []
-    for pair in source.messages():
-        pairs.append(pair)
-        if len(pairs) == n:
-            break
-    return pairs
+    return [source.next_message() for _ in range(n)]
  
  
 def test_ids_are_sequential():
