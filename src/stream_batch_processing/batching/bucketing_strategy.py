@@ -1,4 +1,4 @@
-from .interfaces import File, Bucket
+from ..interfaces import File, Bucket
 
 class FirstFitDecreasing:
     def __init__(self, capacity_mb):

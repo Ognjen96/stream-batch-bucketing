@@ -3,7 +3,7 @@ import random
 import pytest
  
 from stream_batch_processing.interfaces import Message
-from stream_batch_processing.source import PoissonMessageSource
+from stream_batch_processing.sources.message_source import PoissonMessageSource
  
  
 def make_source(seed: int = 42, rate_per_minute: float = 10) -> PoissonMessageSource:

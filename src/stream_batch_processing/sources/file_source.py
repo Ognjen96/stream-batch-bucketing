@@ -1,6 +1,6 @@
 import random
 
-from .interfaces import File
+from ..interfaces import File
 
 
 class FileGenerator:

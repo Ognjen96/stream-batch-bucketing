@@ -1,4 +1,4 @@
-from .interfaces import Message, Minibatch
+from ..interfaces import Message, Minibatch
  
  
 class MessageBatcher:

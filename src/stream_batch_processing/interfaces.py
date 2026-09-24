@@ -4,21 +4,20 @@ from typing import Protocol
  
 @dataclass(frozen=True)
 class Message:
-    """A single message from the source.
- 
-    Arrival time is not carried here: the receiver records it when it arrives.
-    """
+    """A single message from the source."""
     id: int
     payload: str = ""
 
 
 @dataclass(frozen = True)
 class File:
+    """Interface for one file"""
     name: str
     size_mb: float
 
 @dataclass(frozen = True)
 class Bucket:
+    """Interface for one Bucket"""
     files: tuple[File, ...]
     size_mb: float
 
@@ -33,5 +32,7 @@ class Minibatch:
     opened_at: float
     closed_at: float 
 
+
 class BucketingStrategy(Protocol):
+    """Decides how the night's files are grouped into buckets."""
     def pack(self, files: list[File]) -> list[Bucket]: ...

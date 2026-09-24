@@ -2,12 +2,12 @@ import random
 import time
  
 from .interfaces import Message, Minibatch
-from .source import PoissonMessageSource
-from .batcher import MessageBatcher
-from .processor import SimulatedProcessor, SimulatedFilesProcessor
-from .file_source import FileGenerator
-from .worker_pool import WorkerPool
-from .bucketing_strategy import FirstFitDecreasing
+from .sources.message_source import PoissonMessageSource
+from .batching.batcher import MessageBatcher
+from .processing.processor import SimulatedProcessor, SimulatedFilesProcessor
+from .sources.file_source import FileGenerator
+from .processing.worker_pool import WorkerPool
+from .batching.bucketing_strategy import FirstFitDecreasing
 
 DEFAULT_DURATION_S = 60.0
 RATE_PER_MINUTE = 10
@@ -32,6 +32,9 @@ def run_nightly_job(file_source: FileGenerator, strategy: FirstFitDecreasing, wo
         worker_pool.submit(files_processor.process, bucket)
 
 def main(duration_s: float = DEFAULT_DURATION_S) -> None:
+
+
+
     message_source = PoissonMessageSource(rate_per_minute=RATE_PER_MINUTE, rng=random.Random(SEED))
     file_source = FileGenerator(NUM_OF_FILES, AVG_FILE_SIZE_MB, SEED)
     strategy = FirstFitDecreasing(BUCKET_CAPACITY_MB)

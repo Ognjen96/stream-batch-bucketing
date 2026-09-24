@@ -1,7 +1,7 @@
 import random
 from collections.abc import Iterator
  
-from .interfaces import Message
+from ..interfaces import Message
 
 SECONDS_PER_MINUTE = 60.0 
  

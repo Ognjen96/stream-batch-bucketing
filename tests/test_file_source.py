@@ -1,6 +1,6 @@
 import pytest
  
-from stream_batch_processing.file_source import FileGenerator
+from stream_batch_processing.sources.file_source import FileGenerator
  
 AVG_SIZE_MB = 2.0
 NUM_OF_FILES = 100
@@ -13,8 +13,7 @@ def test_generates_requested_number_of_files():
     files = generate_files(count=NUM_OF_FILES)
     assert len(files) == NUM_OF_FILES
 
-
-    
+ 
 def test_same_seed_gives_same_sizes():
     sizes_a = [file.size_mb for file in generate_files(seed=7)]
     sizes_b = [file.size_mb for file in generate_files(seed=7)]
