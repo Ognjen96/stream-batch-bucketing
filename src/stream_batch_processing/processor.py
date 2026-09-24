@@ -11,9 +11,9 @@ class SimulatedProcessor:
     def process(self, batch: Minibatch) -> None:
         worker = threading.current_thread().name
         count = len(batch.messages)
-        print(f"{worker}: start, {count} messages", flush=True)
+        print(f"{worker}: start, {count} messages\n",end="", flush=True)
         time.sleep(count * self._seconds_per_message)
-        print(f"{worker}: done, {count} messages", flush=True)
+        print(f"{worker}: done, {count} messages\n",end="", flush=True)
 
 
 class SimulatedFilesProcessor:
@@ -23,6 +23,6 @@ class SimulatedFilesProcessor:
     def process(self, bucket: Bucket):
         worker = threading.current_thread().name
         count = bucket.size_mb
-        print(f"{worker}: start, {count:.1f} Megabytes", flush=True)
+        print(f"{worker}: start, {count:.1f} Megabytes\n", end="", flush=True)
         time.sleep(count * self._seconds_per_mb)
-        print(f"{worker}: done, {count:.1f} Megabytes", flush=True)
+        print(f"{worker}: done, {count:.1f} Megabytes\n", end="", flush=True)
