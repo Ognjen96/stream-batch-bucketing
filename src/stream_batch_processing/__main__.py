@@ -4,39 +4,53 @@ import time
 from .interfaces import Message, Minibatch
 from .source import PoissonMessageSource
 from .batcher import MessageBatcher
-from .processor import SimulatedProcessor
+from .processor import SimulatedProcessor, SimulatedFilesProcessor
+from .file_source import FileGenerator
 from .worker_pool import WorkerPool
- 
+from .bucketing_strategy import FirstFitDecreasing
+
 DEFAULT_DURATION_S = 60.0
 RATE_PER_MINUTE = 10
 SEED = 42
 WINDOW_DURATION = 10.0
 SECONDS_PER_MESSAGE = 3.0 
 MAX_WORKERS = 10
+AVG_FILE_SIZE_MB = 2.0
+BUCKET_CAPACITY_MB = 10.0
+NUM_OF_FILES = 100
+SECONDS_PER_MB = 1.0
 
-def handle_batch(batch: Minibatch) -> None:
-    """Stand-in for the worker pool: prints what would be processed."""
-    print(
-        f"{batch.closed_at:7.1f}s  batch of {len(batch.messages)} messages"
-        f"  (window {batch.opened_at:.1f} - {batch.closed_at:.1f})",
-        flush=True,
-    ) 
 
 def now(started_at) -> float:
     return time.monotonic() - started_at
 
+def run_nightly_job(file_source: FileGenerator, strategy: FirstFitDecreasing, worker_pool: WorkerPool, files_processor: SimulatedFilesProcessor) -> None:
+    files = file_source.generate_files()
+    buckets = strategy.pack(files)
+    print(f"nightly job: {len(files)} files packed into {len(buckets)} buckets", flush=True)
+    for bucket in buckets:
+        worker_pool.submit(files_processor.process, bucket)
+
 def main(duration_s: float = DEFAULT_DURATION_S) -> None:
-    source = PoissonMessageSource(rate_per_minute=RATE_PER_MINUTE, rng=random.Random(SEED))
+    message_source = PoissonMessageSource(rate_per_minute=RATE_PER_MINUTE, rng=random.Random(SEED))
+    file_source = FileGenerator(NUM_OF_FILES, AVG_FILE_SIZE_MB, SEED)
+    strategy = FirstFitDecreasing(BUCKET_CAPACITY_MB)
+
     batcher = MessageBatcher(WINDOW_DURATION)
     processor = SimulatedProcessor(SECONDS_PER_MESSAGE)
+    files_processor = SimulatedFilesProcessor(SECONDS_PER_MB)
+
     worker_pool = WorkerPool(MAX_WORKERS)
 
     started_at = time.monotonic()
 
-    delay, message = source.next_message()
+    delay, message = message_source.next_message()
     next_arrival = delay
 
     try:
+
+        run_nightly_job(file_source, strategy, worker_pool, files_processor)
+
         while now(started_at) < duration_s:
             if batcher._deadline is None:
                 wake = next_arrival
@@ -51,7 +65,7 @@ def main(duration_s: float = DEFAULT_DURATION_S) -> None:
                 worker_pool.submit(processor.process, minibatch)
             elif moment >= next_arrival:
                 batcher.add(message, moment)
-                delay, message = source.next_message()
+                delay, message = message_source.next_message()
                 next_arrival += delay
     
         if batcher._deadline is not None:

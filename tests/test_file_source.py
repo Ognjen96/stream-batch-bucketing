@@ -1,23 +1,38 @@
-from stream_batch_processing.bucketing_strategy import FirstFitDecreasing
-from stream_batch_processing.interfaces import File
+import pytest
+ 
+from stream_batch_processing.file_source import FileGenerator
+ 
+AVG_SIZE_MB = 2.0
+NUM_OF_FILES = 100
+ 
+def generate_files(count: int = 100, seed: int = 42):
+    return FileGenerator(count, AVG_SIZE_MB, seed).generate_files()
+ 
+ 
+def test_generates_requested_number_of_files():
+    files = generate_files(count=NUM_OF_FILES)
+    assert len(files) == NUM_OF_FILES
 
-MB = 10**6
-CAPACITY = 10 * MB
 
+    
+def test_same_seed_gives_same_sizes():
+    sizes_a = [file.size_mb for file in generate_files(seed=7)]
+    sizes_b = [file.size_mb for file in generate_files(seed=7)]
+    sizes_c = [file.size_mb for file in generate_files(seed=9)]
 
-def make_files(sizes_mb: list[float]) -> list[File]:
-    files = []
-    for index, size_mb in enumerate(sizes_mb):
-        name = f"f{index + 1}"
-        size_bytes = round(size_mb * MB)
-        files.append(File(name=name, size_bytes=size_bytes))
-    return files
+    assert sizes_a == sizes_b
+    assert sizes_a != sizes_c
+ 
+ 
+def test_all_sizes_are_positive():
+    sizes = [file.size_mb for file in generate_files()]
 
+    for i in sizes:
+        assert i > 0
+ 
+ 
+def test_average_size_matches_configured_mean():
+    sizes = [file.size_mb for file in generate_files(count = 10000)]
+    average = sum(sizes) / len(sizes)
 
-def test_example_for_ffd():
-    files = make_files([3.0, 7.0, 0.4, 0.2, 6.5, 14.0, 2.5, 0.9, 4.0, 5.5])
-
-    buckets = FirstFitDecreasing(CAPACITY).pack(files)
-
-    sizes = [[file.size_bytes / MB for file in bucket.files] for bucket in buckets]
-    assert sizes == [[14.0], [7.0, 3.0], [6.5, 2.5, 0.9], [5.5, 4.0, 0.4], [0.2]]
+    assert average == pytest.approx(AVG_SIZE_MB, rel=0.05)

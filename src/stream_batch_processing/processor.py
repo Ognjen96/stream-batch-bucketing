@@ -1,6 +1,6 @@
 import threading
 import time
-from .interfaces import Minibatch
+from .interfaces import Minibatch, Bucket
 
 class SimulatedProcessor:
 
@@ -14,3 +14,15 @@ class SimulatedProcessor:
         print(f"{worker}: start, {count} messages", flush=True)
         time.sleep(count * self._seconds_per_message)
         print(f"{worker}: done, {count} messages", flush=True)
+
+
+class SimulatedFilesProcessor:
+    def __init__(self, seconds_per_mb: float):
+        self._seconds_per_mb = seconds_per_mb
+
+    def process(self, bucket: Bucket):
+        worker = threading.current_thread().name
+        count = bucket.size_mb
+        print(f"{worker}: start, {count:.1f} Megabytes", flush=True)
+        time.sleep(count * self._seconds_per_mb)
+        print(f"{worker}: done, {count:.1f} Megabytes", flush=True)

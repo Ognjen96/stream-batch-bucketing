@@ -11,6 +11,18 @@ class Message:
     id: int
     payload: str = ""
 
+
+@dataclass(frozen = True)
+class File:
+    name: str
+    size_mb: float
+
+@dataclass(frozen = True)
+class Bucket:
+    files: tuple[File, ...]
+    size_mb: float
+
+
 @dataclass(frozen=True)
 class Minibatch:
     """One closed window: the messages it collected and when it was open.
@@ -20,7 +32,6 @@ class Minibatch:
     messages: tuple[Message, ...]
     opened_at: float
     closed_at: float 
- 
-class MessageSink(Protocol):
-    """Anything that accepts messages. The source does not know who it is."""
-    def on_message(self, message: Message) -> None: ...
+
+class BucketingStrategy(Protocol):
+    def pack(self, files: list[File]) -> list[Bucket]: ...
