@@ -10,12 +10,30 @@ In parallel with this another process is gathering 100 files nightly and sending
 git clone https://github.com/Ognjen96/stream-batch-bucketing.git # Clone the repo from git
 cd stream-batch-bucketing                                        # Go to the root of the repo
 docker build -t stream-batch-processing .                        # Build docker file
-docker run --rm stream-batch-processing                          # demo, set to 300 seconds, can be set to 5 minutes as per task, by changing in code variables.
+docker run --rm stream-batch-processing                          # Default window set to 300 seconds, can be set to lower for testing purpose, by changing in env variables.
 docker run --rm stream-batch-processing pytest -v                # tests
 docker stop stream-batch-processing                              # stop the execution of container
+# If you want to change the env variables, this will be the input:
+docker run --rm -e <Variable-you-want-to-change> stream-batch-processing
 ```
 
+Created env variables are:
+
+DEFAULT_DURATION_S - Duration of the demo
+RATE_PER_MINUTE - Number of messages per minute
+SEED - An initial starting number used by a computer's algorithm to generate a sequence of pseudo-random numbers.
+WINDOW_DURATION - Duration of the window from the first message arrival
+SECONDS_PER_MESSAGE - How much time will the processing of one minibatch take
+MAX_WORKERS - Number of workers
+AVG_FILE_SIZE_MB - Avg size of one file in nightly job
+BUCKET_CAPACITY_MB - Capacity of a bucket in MB
+NUM_OF_FILES - Number of files in a nightly job
+SECONDS_PER_MB - How much time will the processing of one bucket take
+
+ 
+
 Press Ctrl+C to stop the demo early, the worker pool finishes the tasks it has already started.
+
 
 
 ## Architecture
