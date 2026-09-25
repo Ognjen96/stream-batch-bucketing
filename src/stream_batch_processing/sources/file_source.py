@@ -4,7 +4,7 @@ from ..interfaces import File
 
 
 class FileGenerator:
-    def __init__(self, count: int, avg_size_mb: int, seed: random.Random) -> None:
+    def __init__(self, count: int, avg_size_mb: float, seed: int) -> None:
         self._count = count
         self._avg_size_mb = avg_size_mb
         self._rng = random.Random(seed)

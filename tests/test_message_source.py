@@ -7,7 +7,7 @@ from stream_batch_processing.sources.message_source import PoissonMessageSource
  
  
 def make_source(seed: int = 42, rate_per_minute: float = 10) -> PoissonMessageSource:
-    return PoissonMessageSource(rate_per_minute=rate_per_minute, rng=random.Random(seed))
+    return PoissonMessageSource(rate_per_minute=rate_per_minute, seed = seed)
  
  
 def take(source: PoissonMessageSource, n: int) -> list[tuple[float, Message]]:

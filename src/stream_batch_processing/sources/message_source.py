@@ -7,9 +7,9 @@ SECONDS_PER_MINUTE = 60.0
  
 class PoissonMessageSource:
     """Produces messages as a Poisson process averaging `rate_per_minute` messages per minute."""
-    def __init__(self, rate_per_minute: float, rng: random.Random) -> None:
+    def __init__(self, rate_per_minute: float, seed: int) -> None:
         self._rate_per_minute = rate_per_minute
-        self._rng = rng
+        self._rng = random.Random(seed)
         self._next_id = 1
  
     def next_message(self) -> tuple[float, Message]:

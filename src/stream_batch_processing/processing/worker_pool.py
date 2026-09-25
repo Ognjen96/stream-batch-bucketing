@@ -4,7 +4,7 @@ from concurrent.futures import ThreadPoolExecutor, Future
 def report_error(future: Future) -> None:
     """Callback which is executed after the task finished.
     
-       If .exeption returns None, task failed, return None, othervise continue with execution"""
+       If .exeption returns None, task failed, return None, otherwise continue with execution"""
     error = future.exception()
     if error is not None:
         print(f"Task failed: {error!r}", flush=True)

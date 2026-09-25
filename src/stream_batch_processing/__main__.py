@@ -33,17 +33,15 @@ def run_nightly_job(file_source: FileGenerator, strategy: FirstFitDecreasing, wo
 
 def main(duration_s: float = DEFAULT_DURATION_S) -> None:
 
+    message_source = PoissonMessageSource(rate_per_minute=RATE_PER_MINUTE, seed=SEED)
+    file_source = FileGenerator(count = NUM_OF_FILES, avg_size_mb = AVG_FILE_SIZE_MB, seed = SEED)
+    strategy = FirstFitDecreasing(capacity_mb = BUCKET_CAPACITY_MB)
 
+    batcher = MessageBatcher(window_seconds = WINDOW_DURATION)
+    message_processor = SimulatedProcessor(seconds_per_message = SECONDS_PER_MESSAGE)
+    files_processor = SimulatedFilesProcessor(seconds_per_mb = SECONDS_PER_MB)
 
-    message_source = PoissonMessageSource(rate_per_minute=RATE_PER_MINUTE, rng=random.Random(SEED))
-    file_source = FileGenerator(NUM_OF_FILES, AVG_FILE_SIZE_MB, SEED)
-    strategy = FirstFitDecreasing(BUCKET_CAPACITY_MB)
-
-    batcher = MessageBatcher(WINDOW_DURATION)
-    processor = SimulatedProcessor(SECONDS_PER_MESSAGE)
-    files_processor = SimulatedFilesProcessor(SECONDS_PER_MB)
-
-    worker_pool = WorkerPool(MAX_WORKERS)
+    worker_pool = WorkerPool(max_workers = MAX_WORKERS)
 
     started_at = time.monotonic()
 
@@ -65,7 +63,7 @@ def main(duration_s: float = DEFAULT_DURATION_S) -> None:
     
             if batcher._deadline is not None and moment >= batcher._deadline:
                 minibatch = batcher.close(moment)
-                worker_pool.submit(processor.process, minibatch)
+                worker_pool.submit(message_processor.process, minibatch)
             elif moment >= next_arrival:
                 batcher.add(message, moment)
                 delay, message = message_source.next_message()
@@ -73,7 +71,7 @@ def main(duration_s: float = DEFAULT_DURATION_S) -> None:
     
         if batcher._deadline is not None:
             minibatch = batcher.close(now(started_at))
-            worker_pool.submit(processor.process, minibatch)
+            worker_pool.submit(message_processor.process, minibatch)
 
     finally:
         worker_pool.shutdown()
