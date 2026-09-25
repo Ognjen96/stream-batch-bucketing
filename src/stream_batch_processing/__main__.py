@@ -1,6 +1,6 @@
-import random
 import time
- 
+import os
+
 from .interfaces import Message, Minibatch
 from .sources.message_source import PoissonMessageSource
 from .batching.batcher import MessageBatcher
@@ -9,16 +9,19 @@ from .sources.file_source import FileGenerator
 from .processing.worker_pool import WorkerPool
 from .batching.bucketing_strategy import FirstFitDecreasing
 
-DEFAULT_DURATION_S = 60.0
-RATE_PER_MINUTE = 10
-SEED = 42
-WINDOW_DURATION = 10.0
-SECONDS_PER_MESSAGE = 3.0 
-MAX_WORKERS = 10
-AVG_FILE_SIZE_MB = 2.0
-BUCKET_CAPACITY_MB = 10.0
-NUM_OF_FILES = 100
-SECONDS_PER_MB = 1.0
+def env_var(name: str, default: float) -> float:
+    return float(os.environ.get(name, default))
+
+DEFAULT_DURATION_S =  env_var("DEMO_DURATION", 900.0)
+RATE_PER_MINUTE = env_var("RATE_PER_MINUTE", 10)
+SEED = int(env_var("SEED", 42))
+WINDOW_DURATION = env_var("WINDOW_DURATION", 300.0)
+SECONDS_PER_MESSAGE = env_var("SECONDS_PER_MESSAGE", 3.0)
+MAX_WORKERS = int(env_var("MAX_WORKERS", 10))
+AVG_FILE_SIZE_MB = env_var("AVG_FILE_SIZE_MB", 2.0)
+BUCKET_CAPACITY_MB = env_var("BUCKET_CAPACITY_MB", 10.0)
+NUM_OF_FILES = int(env_var("NUM_OF_FILES", 100))
+SECONDS_PER_MB = env_var("SECONDS_PER_MB",1.0)
 
 
 def now(started_at) -> float:
